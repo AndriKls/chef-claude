@@ -1,14 +1,16 @@
 import React from "react"
 import IngredientsList from "./IngredientsList"
 import ClaudeRecipe from "./ClaudeRecipe"
-export default function Main() {
-    const [ingredients, setIngredients] = React.useState(
-        []
-    )
-    const [recipeShown, setRecipeShown] = React.useState(false)
+import { getRecipeFromMistral } from "../ai"
 
-    function toggleRecipeShown() {
-        setRecipeShown(prevShown => !prevShown)
+
+export default function Main() {
+    const [ingredients, setIngredients] = React.useState([])
+    const [recipe, setRecipe] = React.useState("")
+
+    async function getRecipe() {
+        const recipeMarkdown = await getRecipeFromMistral(ingredients)
+        setRecipe(recipeMarkdown)
     }
 
     function addIngredient(formData) {
@@ -31,11 +33,12 @@ export default function Main() {
             {ingredients.length > 0 &&
                 <IngredientsList
                     ingredients={ingredients}
-                    toggleRecipeShown={toggleRecipeShown}
+                    getRecipe={getRecipe}
                 />
             }
 
-            {recipeShown && <ClaudeRecipe />}
+            {recipe && <ClaudeRecipe markdown={recipe} />}
         </main>
     )
 }
+
